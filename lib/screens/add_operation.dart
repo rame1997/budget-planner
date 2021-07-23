@@ -1,6 +1,10 @@
+import 'package:badgetplanner/getx/actions_getx_controller.dart';
+import 'package:badgetplanner/models/models/actions.dart';
 import 'package:badgetplanner/models/models/category.dart';
 import 'package:badgetplanner/models/models/currency.dart';
+import 'package:badgetplanner/preferences/user_preferences.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
+import 'package:badgetplanner/utilities/helpers.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:badgetplanner/widgets/button.dart';
 import 'package:badgetplanner/widgets/fixed_create_account_filed.dart';
@@ -11,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 
 import 'currency_screen.dart';
 import 'new_operation_category.dart';
@@ -21,15 +26,14 @@ class AddOperation extends StatefulWidget {
   _AddOperationState createState() => _AddOperationState();
 }
 
-class _AddOperationState extends State<AddOperation> {
+class _AddOperationState extends State<AddOperation> with Helpers {
   late TextEditingController _notetextEditingController;
   late TextEditingController _moneytextEditingController;
-  String? _nameError;
   String pinCode = '';
   int press1 = 0;
   int press2 = 0;
   String hint = 'Thu 2 Sep';
-  DateTime? date =null;
+  String? date ;
   Currency? currency;
   Category? category;
 
@@ -156,7 +160,11 @@ class _AddOperationState extends State<AddOperation> {
                                     press1=1;
                                     press2=0;
                                   });
-                                }, press: press1,
+                                }, press: category != null
+                                  ? category!.expense
+                                  ? 1
+                                  : 0
+                                  : 0,
                               ),
                               IncomeExpensesContanier(
                                 title: AppLocalizations.of(context)!.income,
@@ -167,7 +175,11 @@ class _AddOperationState extends State<AddOperation> {
                                     press1=0;
                                   });
                                 },
-                                press: press2,
+                                press: category != null
+                                    ? !category!.expense
+                                    ? 2
+                                    : 0
+                                    : 0,
                               ),
                             ],
                           ),
@@ -235,14 +247,10 @@ class _AddOperationState extends State<AddOperation> {
                                       prifix:
                                           AppLocalizations.of(context)!.date,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint:date == null ? hint : date.toString(),
-                                      onpress: () {
-                                        DateTime dateSelection=datePicker(context);
-                                        setState(() {
-                                          date = dateSelection;
-
-
-                                        });
+                                      hint:date ?? hint,
+                                      onpress: () async {
+                                        await datePicker();
+                                        setState(() {});
                                       },
                                     ),
                                   ),
@@ -310,58 +318,68 @@ class _AddOperationState extends State<AddOperation> {
                           ),
                           button(
                               text: 'Add',
-                              onPressed: () {
-                                performLogin();
+                              onPressed: () async{
+                                await performAdd();
                               },
                               color: AppColors.BOTTON_SHADOW),
                         ]))))));
   }
-  void performLogin() {
+  Future performAdd() async {
     if (checkData()) {
-      send();
+      await save();
     }
   }
 
   bool checkData() {
-    if (_notetextEditingController.text.isNotEmpty) {
-      checkErrors();
+    if (date != null &&
+        _moneytextEditingController.text.isNotEmpty &&
+        currency != null &&
+        category != null) {
       return true;
     }
-    checkErrors();
-    showSnackBar(message: 'Please, enter required data', error: true);
+    showSnackBar(context,
+        message: AppLocalizations.of(context)!.empty_field_error, error: true);
     return false;
   }
 
-  void send() {}
+  Future save() async {
+    bool created = await ActionsGetxController.to.createOperation(action);
+    if (created) {
+      showSnackBar(context,
+          message: AppLocalizations.of(context)!.success_add_operation);
+      Navigator.pushReplacementNamed(
+          context, '/new_operation_success');
+    } else {
+      showSnackBar(context,
+          message: AppLocalizations.of(context)!.operation_created_field,
+          error: true);
+    }
+  }
 
-  void showSnackBar({required String message, bool error = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: TextStyle(color: Colors.white),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: error ? Colors.red : Colors.green,
-      ),
+  ActionClass get action {
+    ActionClass actionClass = ActionClass();
+    actionClass.amount = int.parse(_moneytextEditingController.text) as String;
+    actionClass.categoryId = category!.id;
+    actionClass.currencyId = currency!.id;
+    actionClass.expense = category!.expense;
+    actionClass.notes = _notetextEditingController.text;
+    actionClass.date = date!;
+    actionClass.userId = SharedPrefController().id;
+    return actionClass;
+  }
+
+  Future datePicker() async {
+    DateTime? dateTime = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2015, 3, 14),
+      lastDate: DateTime.now().add(Duration(days: 365)),
     );
+    if (dateTime != null) {
+      var format = DateFormat.yMd('en');
+      date = format.format(dateTime);
+      print('Date: $date');
+    }
   }
 
-  void checkErrors() {
-    setState(() {
-      _nameError = _notetextEditingController.text.isEmpty ? 'Enter Name ' : '';
-    });
-  }
-
-DateTime datePicker(BuildContext context){
-  late DateTime selectDate;
-  DatePicker.showDatePicker(context,
-      showTitleActions: true,
-      minTime: DateTime(2015, 3, 5),
-      maxTime: DateTime.now(), onChanged: (date) {
-      }, onConfirm: (date) {
-        selectDate=date;
-      }, currentTime: DateTime.now(), locale: LocaleType.en);
-  return selectDate;
-}
 }

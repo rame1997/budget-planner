@@ -1,3 +1,6 @@
+import 'package:badgetplanner/getx/category_getx_controller.dart';
+import 'package:badgetplanner/getx/currency_getx_controller.dart';
+import 'package:badgetplanner/models/models/actions.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:badgetplanner/widgets/fixed_create_account_filed.dart';
@@ -8,21 +11,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 
-class ExpenseDetailsScreen extends StatefulWidget {
-  String title;
-  String money;
-  String note;
-  String date;
-  String currany;
-  int in_ex;
-
-  ExpenseDetailsScreen({required this.title, required this.money, required this.note,required this.date,required this.currany,required this.in_ex});
+class ActionDetailsScreen extends StatefulWidget {
+  ActionClass actionClass;
+  ActionDetailsScreen({required this.actionClass});
 
   @override
-  _ExpenseDetailsScreenState createState() => _ExpenseDetailsScreenState();
+  _ActionDetailsScreenState createState() => _ActionDetailsScreenState();
 }
 
-class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
+class _ActionDetailsScreenState extends State<ActionDetailsScreen> {
   late TextEditingController _notetextEditingController;
   String? _nameError;
   String pinCode='';
@@ -30,7 +27,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _notetextEditingController = TextEditingController(text: widget.note);
+    _notetextEditingController = TextEditingController(text: widget.actionClass.notes);
 
   }
 
@@ -81,7 +78,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                         child: Column(children: [
                           Container(
                             height: SizeConfig.scaleHeight(100),
-                            width: SizeConfig.scaleWidth(105),
+                            width: double.infinity,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
                               color: Colors.white,
@@ -105,7 +102,8 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                             height: SizeConfig.scaleHeight(13),
                           ),
                           TextCustom(
-                              title: widget.title,
+                              title:CategoryGetxController.to
+                                  .getCategoryName(widget.actionClass.categoryId),
                               fontfamily: 'mon',
                               fontweight: FontWeight.w700,
                               size: SizeConfig.scaleTextFont(20),
@@ -115,7 +113,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                             height: SizeConfig.scaleHeight(9),
                           ),
                           TextCustom(
-                              title: widget.money,
+                              title: widget.actionClass.amount.toString(),
                               fontfamily: 'mon',
                               fontweight: FontWeight.w800,
                               size: SizeConfig.scaleTextFont(21),
@@ -142,14 +140,14 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                                 image: 'images/expe.png',
                                 onPressed: () {
                                   },
-                                press: widget.in_ex==1?1:0,
+                                press: widget.actionClass.expense ? 1 : 0,
                               ),
                               IncomeExpensesContanier(
                                 title: AppLocalizations.of(context)!.income,
                                 image: 'images/income.png',
                                 onPressed: () {
                                 },
-                                press: widget.in_ex==2?2:0,
+                                press: widget.actionClass.expense ? 2 : 0,
                               ),
                             ],
                           ),
@@ -185,7 +183,8 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                                       prifix: AppLocalizations.of(context)!
                                           .categorie,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: widget.title,
+                                      hint: CategoryGetxController.to
+                                          .getCategoryName(widget.actionClass.categoryId),
                                       onpress: () {
                                         Navigator.pushNamed(context, '/currency_screen');
                                       },
@@ -202,7 +201,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                                       prifix: AppLocalizations.of(context)!
                                           .date,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: widget.date,
+                                      hint: widget.actionClass.date,
                                       onpress: () {
                                         Navigator.pushNamed(context, '/currency_screen');
                                       },
@@ -219,7 +218,8 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                                       prifix: AppLocalizations.of(context)!
                                           .prifix_Currency,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: widget.currany,
+                                      hint: CurrencyGetxController.to
+                                          .getCurrencyName(widget.actionClass.id),
                                       onpress: () {
                                         Navigator.pushNamed(context, '/currency_screen');
                                       },
@@ -233,7 +233,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                             height: SizeConfig.scaleHeight(11),
                           ),
                           TextFiled(
-                              'This is the notes related to this expense when the user add it',
+                              widget.actionClass.notes,
                               _notetextEditingController,
                               _nameError,
                               1,

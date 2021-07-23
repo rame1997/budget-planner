@@ -1,11 +1,13 @@
-import 'package:badgetplanner/models/income_with_price.dart';
+import 'package:badgetplanner/getx/actions_getx_controller.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
-import 'package:badgetplanner/widgets/button.dart';
 import 'package:badgetplanner/widgets/home_item.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
 import 'package:badgetplanner/widgets/text.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_state_manager/src/simple/get_state.dart';
+
+import 'action_details_screen.dart';
 
 class ActionsScreen extends StatefulWidget {
   const ActionsScreen({Key? key}) : super(key: key);
@@ -15,7 +17,6 @@ class ActionsScreen extends StatefulWidget {
 }
 
 class _ActionsScreenState extends State<ActionsScreen> {
-  List<HomeItem> data_income_with_price = dataIncomeWithPrice;
 
   @override
   Widget build(BuildContext context) {
@@ -75,65 +76,109 @@ class _ActionsScreenState extends State<ActionsScreen> {
                   ),
                   SizedBox(height: SizeConfig.scaleHeight(15),),
                   Expanded(
-                   child: Scrollbar(
-                      child:  Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(2),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.09),
-                              spreadRadius: 0,
-                              blurRadius: 2,
-                              offset: Offset(3, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    top: SizeConfig.scaleHeight(15),
-                                    right: SizeConfig.scaleWidth(8),
-                                    left: SizeConfig.scaleWidth(8)),
-                                child: ListView.separated(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: 8,
-                                  itemBuilder: (context, index) {
-                                    return HomeItem(
-                                      title: data_income_with_price[index].title,
-                                      icon: data_income_with_price[index].icon,
-                                      onTap: () {},
-                                      date: data_income_with_price[index].date,
-                                      money: data_income_with_price[index].money,
-                                      subTitle:
-                                      data_income_with_price[index].subTitle,
-                                      priveousDate: data_income_with_price[index]
-                                          .priveousDate, ic_ex: data_income_with_price[index].ic_ex,
-                                    );
-                                  },
-                                  separatorBuilder: (context, index) {
-                                    return Padding(
-                                      padding:  EdgeInsets.only(bottom: SizeConfig.scaleHeight(8)),
-                                      child: Divider(
-                                        color: AppColors.SUB_TITLE,
-                                        height: SizeConfig.scaleHeight(2),
-                                        indent: SizeConfig.scaleWidth(15),
-                                        endIndent: SizeConfig.scaleWidth(15),
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: SizeConfig.scaleHeight(10), top: SizeConfig.scaleHeight(10)),
+                      child: GetBuilder<ActionsGetxController>(
+                          builder: (ActionsGetxController controller) {
+                            return ListView.separated(
+                              itemCount: controller.action.length,
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              itemBuilder: (context, index) {
+                                return HomeItem(
+                                  actionClass: controller.action.elementAt(index),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ActionDetailsScreen(
+                                           actionClass: controller.action.elementAt(index),
+                                        ),
                                       ),
                                     );
-                                  },
-                                ),
-                              ),
-                            ),
-
-                          ],
-                        ),
+                                  }, index: index,
+                                );
+                              },
+                              separatorBuilder: (context, index) {
+                                return Divider(
+                                    height: 0, color: AppColors.SUB_TITLE);
+                              },
+                            );
+                          }),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(SizeConfig.scaleHeight(25)),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            offset: Offset(0, SizeConfig.scaleHeight(10)),
+                            color: AppColors.BOTTON_SHADOW,
+                            blurRadius: SizeConfig.scaleHeight(18),
+                            spreadRadius: 0,
+                          ),
+                        ],
                       ),
                     ),
-                  )
+                  ),
+                  // Expanded(
+                  //  child: Scrollbar(
+                  //     child:  Container(
+                  //       width: double.infinity,
+                  //       decoration: BoxDecoration(
+                  //         borderRadius: BorderRadius.circular(2),
+                  //         color: Colors.white,
+                  //         boxShadow: [
+                  //           BoxShadow(
+                  //             color: Colors.black.withOpacity(0.09),
+                  //             spreadRadius: 0,
+                  //             blurRadius: 2,
+                  //             offset: Offset(3, 4),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       child: Column(
+                  //         children: [
+                  //           Expanded(
+                  //             child: Padding(
+                  //               padding: EdgeInsets.only(
+                  //                   top: SizeConfig.scaleHeight(15),
+                  //                   right: SizeConfig.scaleWidth(8),
+                  //                   left: SizeConfig.scaleWidth(8)),
+                  //               child: ListView.separated(
+                  //                 physics: NeverScrollableScrollPhysics(),
+                  //                 itemCount: 8,
+                  //                 itemBuilder: (context, index) {
+                  //                   return HomeItem(
+                  //                     title: data_income_with_price[index].title,
+                  //                     icon: data_income_with_price[index].icon,
+                  //                     onTap: () {},
+                  //                     date: data_income_with_price[index].date,
+                  //                     money: data_income_with_price[index].money,
+                  //                     subTitle:
+                  //                     data_income_with_price[index].subTitle,
+                  //                     priveousDate: data_income_with_price[index]
+                  //                         .priveousDate, ic_ex: data_income_with_price[index].ic_ex,
+                  //                   );
+                  //                 },
+                  //                 separatorBuilder: (context, index) {
+                  //                   return Padding(
+                  //                     padding:  EdgeInsets.only(bottom: SizeConfig.scaleHeight(8)),
+                  //                     child: Divider(
+                  //                       color: AppColors.SUB_TITLE,
+                  //                       height: SizeConfig.scaleHeight(2),
+                  //                       indent: SizeConfig.scaleWidth(15),
+                  //                       endIndent: SizeConfig.scaleWidth(15),
+                  //                     ),
+                  //                   );
+                  //                 },
+                  //               ),
+                  //             ),
+                  //           ),
+                  //
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // )
                 ],
               ),
             ),)));

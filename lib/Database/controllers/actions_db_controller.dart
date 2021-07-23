@@ -5,14 +5,14 @@ import 'package:badgetplanner/models/models/actions.dart';
 import '../db_operations.dart';
 import '../db_provider.dart';
 
-class ActionDbController extends DbOperations<Action>{
+class ActionDbController extends DbOperations<ActionClass>{
 
   ActionDbController(){
     database = DBProvider().database;
   }
 
   @override
-  Future<int> create(Action data) async{
+  Future<int> create(ActionClass data) async{
     return await database.insert('action', data.toMap());
   }
 
@@ -23,19 +23,19 @@ class ActionDbController extends DbOperations<Action>{
   }
 
   @override
-  Future<List<Action>> read() async{
+  Future<List<ActionClass>> read() async{
     var rowsMaps = await database.query('action');
-    return rowsMaps.map((rowMap) => Action.fromMap(rowMap)).toList();
+    return rowsMaps.map((rowMap) => ActionClass.fromMap(rowMap)).toList();
   }
 
   @override
-  Future<Action?> show(int id) async{
+  Future<ActionClass?> show(int id) async{
     var data = await database.query('action', where: 'id = ?', whereArgs: [id]);
-    return data.isNotEmpty ? data.map((rowMap) => Action.fromMap(rowMap)).first : null;
+    return data.isNotEmpty ? data.map((rowMap) => ActionClass.fromMap(rowMap)).first : null;
   }
 
   @override
-  Future<bool> update(Action data) async{
+  Future<bool> update(ActionClass data) async{
     int countOfUpdatedRows = await database.update('action', data.toMap(), where: 'id = ?', whereArgs: [data.id]);
     return countOfUpdatedRows != 0;
   }

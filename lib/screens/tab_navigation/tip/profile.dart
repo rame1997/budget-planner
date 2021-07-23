@@ -102,192 +102,153 @@ class _ProfileState extends State<Profile> with Helpers {
                         height: SizeConfig.scaleHeight(13),
                       ),
                       TextCustom(
-                          title: _nameTextEditingController.text,
+                          title: user.name,
                           fontfamily: 'mon',
                           fontweight: FontWeight.w700,
                           size: SizeConfig.scaleTextFont(20),
                           color: AppColors.TITLE,
                           align: TextAlign.center),
                       SizedBox(
-                        height: SizeConfig.scaleHeight(11),
+                        height: SizeConfig.scaleHeight(20),
                       ),
 
-                      Container(
-                        height: SizeConfig.scaleHeight(344),
-                        width: SizeConfig.scaleWidth(374),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              spreadRadius: 0,
-                              blurRadius: 4,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                      Padding(
+                        padding: EdgeInsets.only(
+                            right: SizeConfig.scaleWidth(8),
+                            left: SizeConfig.scaleWidth(8),
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: SizeConfig.scaleWidth(22),
-                              vertical: SizeConfig.scaleHeight(15)),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                height: SizeConfig.scaleHeight(13),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Container(
+                              height: SizeConfig.scaleHeight(344),
+                              width: SizeConfig.scaleWidth(374),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.25),
+                                    spreadRadius: 0,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                              TextCustom(
-                                  title: AppLocalizations.of(context)!.get_started,
-                                  fontfamily: 'mon',
-                                  fontweight: FontWeight.w700,
-                                  size: SizeConfig.scaleTextFont(20),
-                                  color: AppColors.TITLE,
-                                  align: TextAlign.center),
-                              SizedBox(
-                                height: SizeConfig.scaleHeight(11),
-                              ),
-                              TextCustom(
-                                  title:
-                                  AppLocalizations.of(context)!.get_started_message,
-                                  fontfamily: 'mon',
-                                  fontweight: FontWeight.w400,
-                                  size: SizeConfig.scaleTextFont(15),
-                                  color: AppColors.SUB_TITLE,
-                                  align: TextAlign.center),
-                              SizedBox(
-                                height: SizeConfig.scaleHeight(21),
-                              ),
-                              Container(
-                                height: SizeConfig.scaleHeight(344),
-                                width: SizeConfig.scaleWidth(374),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.25),
-                                      spreadRadius: 0,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 4),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: SizeConfig.scaleWidth(22),
+                                    vertical: SizeConfig.scaleHeight(15)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    TextfileCreateAccount(
+                                      prifixColor: AppColors.PRFIX_TEXTFILED,
+                                      prifix:
+                                      AppLocalizations.of(context)!.prifix_name,
+                                      hintColor: AppColors.SUB_TITLE,
+                                      hint: user.name,
+                                      textEditingController:
+                                      _nameTextEditingController,
                                     ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: SizeConfig.scaleWidth(22),
-                                      vertical: SizeConfig.scaleHeight(15)),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                      TextfileCreateAccount(
+                                    Divider(
+                                      height: SizeConfig.scaleHeight(4),
+                                      color: AppColors.SUB_TITLE,
+                                    ),
+                                    TextfileCreateAccount(
+                                      prifixColor: AppColors.PRFIX_TEXTFILED,
+                                      prifix:
+                                      AppLocalizations.of(context)!.prifix_email,
+                                      hintColor: AppColors.SUB_TITLE,
+                                      hint: user.email,
+                                      textEditingController:
+                                      _emailTextEditingController,
+                                    ),
+                                    Divider(
+                                      height: SizeConfig.scaleHeight(4),
+                                      color: AppColors.SUB_TITLE,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          top: SizeConfig.scaleHeight(10),
+                                          bottom: SizeConfig.scaleHeight(10)),
+                                      child: TextFiledAccount(
                                         prifixColor: AppColors.PRFIX_TEXTFILED,
-                                        prifix:
-                                        AppLocalizations.of(context)!.prifix_name,
+                                        prifix: AppLocalizations.of(context)!
+                                            .prifix_Currency,
                                         hintColor: AppColors.SUB_TITLE,
-                                        hint: user.name,
-                                        textEditingController:
-                                        _nameTextEditingController,
+                                        hint: currency == null
+                                            ? CurrencyGetxController.to
+                                            .getCurrencyName(user.currencyId)
+                                            : currency!.nameEn,
+                                        onpress: () async {
+                                          Currency selectedCurrency =
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => CurrencyScreen(),
+                                            ),
+                                          );
+                                          setState(() {
+                                            currency = selectedCurrency;
+                                          });
+                                        },
                                       ),
-                                      Divider(
-                                        height: SizeConfig.scaleHeight(4),
-                                        color: AppColors.SUB_TITLE,
-                                      ),
-                                      TextfileCreateAccount(
-                                        prifixColor: AppColors.PRFIX_TEXTFILED,
-                                        prifix:
-                                        AppLocalizations.of(context)!.prifix_email,
-                                        hintColor: AppColors.SUB_TITLE,
-                                        hint: user.email,
-                                        textEditingController:
-                                        _emailTextEditingController,
-                                      ),
-                                      Divider(
-                                        height: SizeConfig.scaleHeight(4),
-                                        color: AppColors.SUB_TITLE,
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            top: SizeConfig.scaleHeight(10),
-                                            bottom: SizeConfig.scaleHeight(10)),
-                                        child: TextFiledAccount(
-                                          prifixColor: AppColors.PRFIX_TEXTFILED,
-                                          prifix: AppLocalizations.of(context)!
-                                              .prifix_Currency,
-                                          hintColor: AppColors.SUB_TITLE,
-                                          hint: currency == null
-                                              ? CurrencyGetxController.to
-                                              .getCurrencyName(user.currencyId)
-                                              : currency!.nameEn,
-                                          onpress: () async {
-                                            Currency selectedCurrency =
-                                            await Navigator.push(
+                                    ),
+                                    Divider(
+                                      height: SizeConfig.scaleHeight(4),
+                                      color: AppColors.SUB_TITLE,
+                                    ),
+                                    TextfileCreateAccount(
+                                      prifixColor: AppColors.PRFIX_TEXTFILED,
+                                      prifix: AppLocalizations.of(context)!
+                                          .prifix_Daily_limit,
+                                      hintColor: AppColors.SUB_TITLE,
+                                      hint: user.dayLimit.toString(),
+                                      textEditingController:
+                                      _limitedTextEditingController,
+                                    ),
+                                    Divider(
+                                      height: SizeConfig.scaleHeight(4),
+                                      color: AppColors.SUB_TITLE,
+                                    ),
+                                    Row(
+                                      children: [
+                                        TextButton(
+                                          onPressed: () async {
+                                            String code = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) => CurrencyScreen(),
+                                                builder: (context) => PinCodeScreen(),
                                               ),
                                             );
                                             setState(() {
-                                              currency = selectedCurrency;
+                                              pinCode = code;
                                             });
                                           },
+                                          child: TextCustom(
+                                              title: AppLocalizations.of(context)!
+                                                  .prifix_Set_your_pin,
+                                              fontfamily: 'mon',
+                                              fontweight: FontWeight.w500,
+                                              size: SizeConfig.scaleTextFont(15),
+                                              color: AppColors.PRFIX_TEXTFILED,
+                                              align: TextAlign.center),
                                         ),
-                                      ),
-                                      Divider(
-                                        height: SizeConfig.scaleHeight(4),
-                                        color: AppColors.SUB_TITLE,
-                                      ),
-                                      TextfileCreateAccount(
-                                        prifixColor: AppColors.PRFIX_TEXTFILED,
-                                        prifix: AppLocalizations.of(context)!
-                                            .prifix_Daily_limit,
-                                        hintColor: AppColors.SUB_TITLE,
-                                        hint: user.dayLimit.toString(),
-                                        textEditingController:
-                                        _limitedTextEditingController,
-                                      ),
-                                      Divider(
-                                        height: SizeConfig.scaleHeight(4),
-                                        color: AppColors.SUB_TITLE,
-                                      ),
-                                      Row(
-                                        children: [
-                                          TextButton(
-                                            onPressed: () async {
-                                              String code = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => PinCodeScreen(),
-                                                ),
-                                              );
-                                              setState(() {
-                                                pinCode = code;
-                                              });
-                                            },
-                                            child: TextCustom(
-                                                title: AppLocalizations.of(context)!
-                                                    .prifix_Set_your_pin,
-                                                fontfamily: 'mon',
-                                                fontweight: FontWeight.w500,
-                                                size: SizeConfig.scaleTextFont(15),
-                                                color: AppColors.PRFIX_TEXTFILED,
-                                                align: TextAlign.center),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              SizedBox(
-                                height: SizeConfig.scaleHeight(80),
-                              ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(
+                              height: SizeConfig.scaleHeight(10),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(
-                        height: SizeConfig.scaleHeight(80),
+                        height: SizeConfig.scaleHeight(35),
                       ),
                       button(
                         text: AppLocalizations.of(context)!.save,
@@ -331,7 +292,7 @@ class _ProfileState extends State<Profile> with Helpers {
     updatedUser.email =
     _emailTextEditingController.text.isNotEmpty ? _emailTextEditingController.text : user.email;
     updatedUser.currencyId = currency == null ? user.currencyId : currency!.id;
-    updatedUser.pin = pinCode == null ? user.pin : int.parse(pinCode!);
+    updatedUser.pin = pinCode == null ? user.pin : int.parse(pinCode);
     return updatedUser;
   }
 

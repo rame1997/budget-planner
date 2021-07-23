@@ -55,5 +55,8 @@ class CategoryGetxController extends GetxController {
     await dbController.deleteAllRows();
     category.clear();
   }
-
+  String getCategoryName(int id){
+    int index = category.indexWhere((element) => id == element.id);
+    return category[index].name;
+  }
 }

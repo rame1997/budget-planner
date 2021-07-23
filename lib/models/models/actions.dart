@@ -1,7 +1,7 @@
 
 import 'db_table.dart';
 
-class Action extends DbTable{
+class ActionClass extends DbTable{
   late int id;
   late String amount;
   late String date;
@@ -11,7 +11,9 @@ class Action extends DbTable{
   late int categoryId;
   late int currencyId;
 
-  Action.fromMap(Map<String, dynamic> rowMap) : super.fromMap(rowMap) {
+  ActionClass();
+
+  ActionClass.fromMap(Map<String, dynamic> rowMap) : super.fromMap(rowMap) {
     id = rowMap['id'];
     amount = rowMap['amount'];
     date = rowMap['date'];

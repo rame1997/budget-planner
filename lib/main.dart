@@ -24,6 +24,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';
 
+import 'getx/actions_getx_controller.dart';
 import 'getx/category_getx_controller.dart';
 
 import 'getx/currency_getx_controller.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   CategoryGetxController controller = Get.put(CategoryGetxController());
   CurrencyGetxController CurrencyGetx = Get.put(CurrencyGetxController());
+  ActionsGetxController ActionsGetx = Get.put(ActionsGetxController());
   LanguageGetxController languageGetxController =
   Get.put(LanguageGetxController());
   @override

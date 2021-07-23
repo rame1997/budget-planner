@@ -1,4 +1,5 @@
 import 'package:badgetplanner/Database/controllers/user_db_controller.dart';
+import 'package:badgetplanner/getx/actions_getx_controller.dart';
 import 'package:badgetplanner/getx/category_getx_controller.dart';
 import 'package:badgetplanner/getx/language_getx_controller.dart';
 import 'package:badgetplanner/preferences/user_preferences.dart';
@@ -191,6 +192,7 @@ class _SettingScreenState extends State<SettingScreen> with Helpers{
       content: AppLocalizations.of(context)!.alet_clear_account_message,
     );
     if (status) {
+      await ActionsGetxController.to.deleteAllRows();
       await CategoryGetxController.to.deleteAllRows();
     }
   }
@@ -198,6 +200,7 @@ class _SettingScreenState extends State<SettingScreen> with Helpers{
     bool userDeleted = await UserDbController().delete(SharedPrefController().id);
     print(userDeleted);
     if (userDeleted) {
+      await ActionsGetxController.to.deleteAllRows();
       await CategoryGetxController.to.deleteAllRows();
       SharedPrefController().logout();
       showSnackBar(context, message: 'Account Deleted Successfully!');

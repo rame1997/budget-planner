@@ -63,5 +63,7 @@
   "empty_field_error":"ادخل محتوي النص ",
   "create_account":"انشاء حساب",
   "account_updated_successfully":"تم تعديل بنجاح",
-  "account_updated_field":"فشل التعديل"
+  "account_updated_field":"فشل التعديل",
+  "operation_created_field":"تم اضافة العملية بنجاح",
+  "success_add_operation":"فشل اضافة العملية"
 }

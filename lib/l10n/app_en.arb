@@ -58,9 +58,11 @@
 "add":"Add",
 "apply":"Apply",
 "category_created_successfully":"Category Add Successfully",
+"success_add_operation":"Operation Add Successfully",
 "account_created_successfully":"Account Created Successfully",
 "account_updated_successfully":"Account Updated Successfully",
 "category_created_field":"Category Add Field",
+"operation_created_field":"Operation Add Field",
 "account_updated_field":"Account Updated Field",
 "empty_field_error":"enter contant Field",
 "create_account":"Create Account"

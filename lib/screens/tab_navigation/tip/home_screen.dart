@@ -1,4 +1,7 @@
-import 'package:badgetplanner/models/income_with_price.dart';
+import 'package:badgetplanner/getx/actions_getx_controller.dart';
+import 'package:badgetplanner/models/models/user.dart';
+import 'package:badgetplanner/preferences/user_preferences.dart';
+import 'package:badgetplanner/screens/actions_screen.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:badgetplanner/widgets/button.dart';
@@ -8,8 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import '../../expense_details_screen.dart';
+import 'package:badgetplanner/models/models/actions.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -17,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<HomeItem> data_income_with_price = dataIncomeWithPrice;
   String date = DateFormat.MMMd('en').format(DateTime.now());
 
   @override
@@ -72,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Column(
                                 children: [
                                   TextCustom(
-                                      title: '\$ 765',
+                                      title: user.id==1?'\# '+ user.dayLimit.toString():user.id==2?'\$ '+ user.dayLimit.toString():'\@ '+user.dayLimit.toString(),
                                       fontfamily: 'mon',
                                       fontweight: FontWeight.w800,
                                       size: SizeConfig.scaleTextFont(18),
@@ -104,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: AppColors.SUB_TITLE,
                                       align: TextAlign.center),
                                   TextCustom(
-                                      title: '\$ 1267 ',
+                                      title: user.id==1?'\# '+user.dayLimit.toString():user.id==2?'\$ '+user.dayLimit.toString():'\@ '+user.dayLimit.toString(),
                                       fontfamily: 'mon',
                                       fontweight: FontWeight.w400,
                                       size: SizeConfig.scaleTextFont(16.5),
@@ -151,51 +152,104 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Column(
                               children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        top: SizeConfig.scaleHeight(15),
-                                        right: SizeConfig.scaleWidth(8),
-                                        left: SizeConfig.scaleWidth(8)),
-                                    child: ListView.separated(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: 4,
-                                      itemBuilder: (context, index) {
-                                        return HomeItem(
-                                          title: data_income_with_price[index].title,
-                                          icon: data_income_with_price[index].icon,
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => ExpenseDetailsScreen(title: data_income_with_price[index].title, money: data_income_with_price[index].money, note: '', currany: 'Dollar (\$)', date: data_income_with_price[index].date,in_ex:data_income_with_price[index].ic_ex ,
-                                                      )),
-                                            );
-                                          },
-                                          date: data_income_with_price[index].date,
-                                          money: data_income_with_price[index].money,
-                                          subTitle:
-                                              data_income_with_price[index].subTitle,
-                                          priveousDate: data_income_with_price[index]
-                                              .priveousDate, ic_ex: data_income_with_price[index].ic_ex,
-                                        );
-                                      },
-                                      separatorBuilder: (context, index) {
-                                        return Padding(
-                                          padding:  EdgeInsets.only(bottom: SizeConfig.scaleHeight(8)),
-                                          child: Divider(
-                                            color: AppColors.SUB_TITLE,
-                                            height: SizeConfig.scaleHeight(2),
-                                            indent: SizeConfig.scaleWidth(15),
-                                            endIndent: SizeConfig.scaleWidth(15),
+                                lastOperation.isNotEmpty
+                                    ? Expanded(
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                          BorderRadius.circular(SizeConfig.scaleHeight(8)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              offset: Offset(0, SizeConfig.scaleHeight(5)),
+                                              blurRadius: SizeConfig.scaleHeight(18),
+                                              spreadRadius: 0,
+                                              color: AppColors.BOTTON_SHADOW,
+                                            )
+                                          ]),
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: ListView.separated(
+                                              shrinkWrap: true,
+                                              padding: EdgeInsets.only(
+                                                left: SizeConfig.scaleWidth(12),
+                                                right: SizeConfig.scaleWidth(12),
+                                                top: SizeConfig.scaleHeight(10),
+                                                bottom: SizeConfig.scaleHeight(27),
+                                              ),
+                                              itemCount: lastOperation.length,
+                                              separatorBuilder:
+                                                  (BuildContext context, int index) {
+                                                return Divider(
+                                                  height: 0,
+                                                );
+                                              },
+                                              itemBuilder: (BuildContext context, int index) {
+                                                return HomeItem(
+                                                  
+                                                              onTap: () {
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (context) => ActionsScreen()),
+                                                                );
+                                                              },
+                                                               actionClass: lastOperation[index], index: index,
+                                                            );
+                                              },
+                                            ),
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
+
+                                        ],
+                                      )),
+                                )
+                                    : Container(),
+                                // Expanded(
+                                //   child: Padding(
+                                //     padding: EdgeInsets.only(
+                                //         top: SizeConfig.scaleHeight(15),
+                                //         right: SizeConfig.scaleWidth(8),
+                                //         left: SizeConfig.scaleWidth(8)),
+                                //     child: ListView.separated(
+                                //       physics: NeverScrollableScrollPhysics(),
+                                //       itemCount: 4,
+                                //       itemBuilder: (context, index) {
+                                //         return HomeItem(
+                                //           title: data_income_with_price[index].title,
+                                //           icon: data_income_with_price[index].icon,
+                                //           onTap: () {
+                                //             Navigator.push(
+                                //               context,
+                                //               MaterialPageRoute(
+                                //                   builder: (context) => ExpenseDetailsScreen(title: data_income_with_price[index].title, money: data_income_with_price[index].money, note: '', currany: 'Dollar (\$)', date: data_income_with_price[index].date,in_ex:data_income_with_price[index].ic_ex ,
+                                //                       )),
+                                //             );
+                                //           },
+                                //           date: data_income_with_price[index].date,
+                                //           money: data_income_with_price[index].money,
+                                //           subTitle:
+                                //               data_income_with_price[index].subTitle,
+                                //           priveousDate: data_income_with_price[index]
+                                //               .priveousDate, ic_ex: data_income_with_price[index].ic_ex,
+                                //         );
+                                //       },
+                                //       separatorBuilder: (context, index) {
+                                //         return Padding(
+                                //           padding:  EdgeInsets.only(bottom: SizeConfig.scaleHeight(8)),
+                                //           child: Divider(
+                                //             color: AppColors.SUB_TITLE,
+                                //             height: SizeConfig.scaleHeight(2),
+                                //             indent: SizeConfig.scaleWidth(15),
+                                //             endIndent: SizeConfig.scaleWidth(15),
+                                //           ),
+                                //         );
+                                //       },
+                                //     ),
+                                //   ),
+                                // ),
                                 SizedBox(
-                                  height: SizeConfig.scaleHeight(20),
+                                  height: SizeConfig.scaleHeight(10),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(
@@ -222,5 +276,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ))));
+  }
+  User get user {
+    User user = SharedPrefController().getUser();
+    return user;
+  }
+
+  List<ActionClass> get lastOperation {
+    return ActionsGetxController.to.getTheLastActions();
   }
 }
