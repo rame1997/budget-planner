@@ -1,15 +1,15 @@
 import 'package:badgetplanner/Database/db_provider.dart';
 import 'package:badgetplanner/preferences/user_preferences.dart';
 import 'package:badgetplanner/screens/about_screen.dart';
-import 'package:badgetplanner/screens/actions_screen.dart';
+import 'package:badgetplanner/screens/action/actions_screen.dart';
 import 'package:badgetplanner/screens/add_categories.dart';
-import 'package:badgetplanner/screens/add_operation.dart';
+import 'package:badgetplanner/screens/operation/add_operation.dart';
 import 'package:badgetplanner/screens/bottomna_vigation_bar/bottom_navigation_bar_screen.dart';
 import 'package:badgetplanner/screens/login_and_create/create_account_screen.dart';
 import 'package:badgetplanner/screens/login_and_create/create_account_success_screen.dart';
 import 'package:badgetplanner/screens/currency_screen.dart';
-import 'package:badgetplanner/screens/new_operation_category.dart';
-import 'package:badgetplanner/screens/new_operation_success.dart';
+import 'package:badgetplanner/screens/operation/new_operation_category.dart';
+import 'package:badgetplanner/screens/operation/new_operation_success.dart';
 import 'package:badgetplanner/screens/tab_navigation/tip/home_screen.dart';
 import 'package:badgetplanner/screens/launch_screen.dart';
 import 'package:badgetplanner/screens/login_and_create/login_screen.dart';
@@ -29,6 +29,7 @@ import 'getx/category_getx_controller.dart';
 
 import 'getx/currency_getx_controller.dart';
 import 'getx/language_getx_controller.dart';
+import 'getx/users_getx_controller.dart';
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,10 +44,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  CategoryGetxController controller = Get.put(CategoryGetxController());
-  CurrencyGetxController CurrencyGetx = Get.put(CurrencyGetxController());
-  ActionsGetxController ActionsGetx = Get.put(ActionsGetxController());
-  LanguageGetxController languageGetxController =
+  CategoryGetxController category_getx_controller = Get.put(CategoryGetxController());
+  CurrencyGetxController currency_getx_controller = Get.put(CurrencyGetxController());
+  ActionGetxController actions_getx_controller = Get.put(ActionGetxController());
+  UsersGetxController user_getx_controller = Get.put(UsersGetxController());
+  LanguageGetxController language_getx_controller =
   Get.put(LanguageGetxController());
   @override
   Widget build(BuildContext context) {
@@ -94,7 +96,7 @@ class _MyAppState extends State<MyApp> {
           const Locale('en', ''),
           const Locale('ar', '')
         ],
-        locale:Locale(languageGetxController.languageCode.value),
+        locale:Locale(language_getx_controller.languageCode.value),
       );
   });
   }

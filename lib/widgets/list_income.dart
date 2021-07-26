@@ -31,13 +31,24 @@ class ListIncome extends StatelessWidget {
                   align: TextAlign.center),
             ),
             SizedBox(width: SizeConfig.scaleWidth(20)),
-            TextCustom(
-                title: category.name,
-                fontfamily: 'mon',
-                fontweight: FontWeight.w500,
-                size: SizeConfig.scaleTextFont(15),
-                color: AppColors.TITLE,
-                align: TextAlign.center),
+            Column(
+              children: [
+                TextCustom(
+                    title: category.name,
+                    fontfamily: 'mon',
+                    fontweight: FontWeight.w500,
+                    size: SizeConfig.scaleTextFont(15),
+                    color: AppColors.TITLE,
+                    align: TextAlign.center),
+                TextCustom(
+                    title: category.name,
+                    fontfamily: 'mon',
+                    fontweight: FontWeight.w300,
+                    size: SizeConfig.scaleTextFont(15),
+                    color: AppColors.SUB_TITLE,
+                    align: TextAlign.center),
+              ],
+            ),
 
           ],
         ),

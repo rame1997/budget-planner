@@ -78,36 +78,39 @@ class _ActionsScreenState extends State<ActionsScreen> {
                   Expanded(
                     child: Container(
                       margin: EdgeInsets.only(bottom: SizeConfig.scaleHeight(10), top: SizeConfig.scaleHeight(10)),
-                      child: GetBuilder<ActionsGetxController>(
-                          builder: (ActionsGetxController controller) {
+                      child: GetBuilder<ActionGetxController>(
+                          builder: (ActionGetxController controller) {
                             return ListView.separated(
-                              itemCount: controller.action.length,
+                              itemCount: controller.actions.length,
                               shrinkWrap: true,
                               padding: EdgeInsets.zero,
                               itemBuilder: (context, index) {
                                 return HomeItem(
-                                  actionClass: controller.action.elementAt(index),
+                                  action: controller.actions.elementAt(index),
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => ActionDetailsScreen(
-                                           actionClass: controller.action.elementAt(index),
+                                           actionClass: controller.actions.elementAt(index),
                                         ),
                                       ),
                                     );
-                                  }, index: index,
+                                  },
                                 );
                               },
                               separatorBuilder: (context, index) {
                                 return Divider(
-                                    height: 0, color: AppColors.SUB_TITLE);
+                                    height: 0, color: AppColors.SUB_TITLE,
+                                endIndent: SizeConfig.scaleWidth(15),
+                                indent: SizeConfig.scaleWidth(15),
+                                );
                               },
                             );
                           }),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(SizeConfig.scaleHeight(25)),
+                        borderRadius: BorderRadius.circular(SizeConfig.scaleHeight(20)),
                         boxShadow: <BoxShadow>[
                           BoxShadow(
                             offset: Offset(0, SizeConfig.scaleHeight(10)),
@@ -119,66 +122,7 @@ class _ActionsScreenState extends State<ActionsScreen> {
                       ),
                     ),
                   ),
-                  // Expanded(
-                  //  child: Scrollbar(
-                  //     child:  Container(
-                  //       width: double.infinity,
-                  //       decoration: BoxDecoration(
-                  //         borderRadius: BorderRadius.circular(2),
-                  //         color: Colors.white,
-                  //         boxShadow: [
-                  //           BoxShadow(
-                  //             color: Colors.black.withOpacity(0.09),
-                  //             spreadRadius: 0,
-                  //             blurRadius: 2,
-                  //             offset: Offset(3, 4),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //       child: Column(
-                  //         children: [
-                  //           Expanded(
-                  //             child: Padding(
-                  //               padding: EdgeInsets.only(
-                  //                   top: SizeConfig.scaleHeight(15),
-                  //                   right: SizeConfig.scaleWidth(8),
-                  //                   left: SizeConfig.scaleWidth(8)),
-                  //               child: ListView.separated(
-                  //                 physics: NeverScrollableScrollPhysics(),
-                  //                 itemCount: 8,
-                  //                 itemBuilder: (context, index) {
-                  //                   return HomeItem(
-                  //                     title: data_income_with_price[index].title,
-                  //                     icon: data_income_with_price[index].icon,
-                  //                     onTap: () {},
-                  //                     date: data_income_with_price[index].date,
-                  //                     money: data_income_with_price[index].money,
-                  //                     subTitle:
-                  //                     data_income_with_price[index].subTitle,
-                  //                     priveousDate: data_income_with_price[index]
-                  //                         .priveousDate, ic_ex: data_income_with_price[index].ic_ex,
-                  //                   );
-                  //                 },
-                  //                 separatorBuilder: (context, index) {
-                  //                   return Padding(
-                  //                     padding:  EdgeInsets.only(bottom: SizeConfig.scaleHeight(8)),
-                  //                     child: Divider(
-                  //                       color: AppColors.SUB_TITLE,
-                  //                       height: SizeConfig.scaleHeight(2),
-                  //                       indent: SizeConfig.scaleWidth(15),
-                  //                       endIndent: SizeConfig.scaleWidth(15),
-                  //                     ),
-                  //                   );
-                  //                 },
-                  //               ),
-                  //             ),
-                  //           ),
-                  //
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // )
+
                 ],
               ),
             ),)));

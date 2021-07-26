@@ -1,3 +1,4 @@
+import 'package:badgetplanner/getx/users_getx_controller.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:badgetplanner/widgets/text.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,9 @@ mixin Helpers {
                   color: AppColors.TITLE,
                   align: TextAlign.left),),
               TextButton(
-                onPressed: (){
+                onPressed: ()async {
+                  await UsersGetxController.to.clearAccountData();
+                   showSnackBar(context, message: 'User account data cleared',);
                 },child: TextCustom(
                   title: AppLocalizations.of(context)!.yes,
                   fontfamily: 'mon',

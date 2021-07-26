@@ -1,6 +1,9 @@
 
 import 'package:badgetplanner/Database/controllers/category_db_controller.dart';
+import 'package:badgetplanner/getx/users_getx_controller.dart';
 import 'package:badgetplanner/models/models/category.dart';
+import 'package:badgetplanner/utilities/enums.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
 
 class CategoryGetxController extends GetxController {
@@ -50,6 +53,29 @@ class CategoryGetxController extends GetxController {
     }
     return false;
   }
+  Future<bool> deleteUserCategories() async {
+    bool deleted = await dbController.delete(UsersGetxController.to.user.id);
+    if(deleted) category.clear();
+    return deleted;
+  }
+
+  Category? getSelectedCategory() {
+    int index = category.indexWhere((element) => element.checked);
+    if (index != -1) return category[index];
+    return null;
+  }
+
+  void undoCheckedCategory() {
+    category.forEach((element) {
+      element.checked = false;
+    });
+  }
+
+
+  List<Category> getCategoriesByType({required CategoryType type}) {
+    bool expenses = type == CategoryType.Expense;
+    return category.where((element) => element.expense == expenses).toList();
+  }
 
   Future<void> deleteAllRows() async {
     await dbController.deleteAllRows();
@@ -58,5 +84,10 @@ class CategoryGetxController extends GetxController {
   String getCategoryName(int id){
     int index = category.indexWhere((element) => id == element.id);
     return category[index].name;
+  }
+  Category getCategoryById({required int id, bool setSelected = false}) {
+    int index = category.indexWhere((element) => element.id == id);
+    if (setSelected) category[index].checked = true;
+    return category[index];
   }
 }

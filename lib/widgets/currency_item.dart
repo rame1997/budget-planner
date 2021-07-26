@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 class CurrencyItem extends StatelessWidget {
   final Currency currency;
   final void Function() onTap;
+  final bool checked;
 
-  CurrencyItem({required this.currency, required this.onTap});
+  CurrencyItem(
+      {required this.currency, required this.onTap, required this.checked});
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +29,11 @@ class CurrencyItem extends StatelessWidget {
             ),
             SizedBox(width: 15),
             Text(currency.nameEn),
+            Spacer(),
+            Icon(
+              Icons.check,
+              color: checked ? AppColors.BOTTON : Colors.transparent,
+            ),
           ],
         ),
       ),

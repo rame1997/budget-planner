@@ -1,6 +1,8 @@
 import 'package:badgetplanner/getx/category_getx_controller.dart';
+import 'package:badgetplanner/getx/users_getx_controller.dart';
 import 'package:badgetplanner/models/models/category.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
+import 'package:badgetplanner/utilities/enums.dart';
 import 'package:badgetplanner/utilities/helpers.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:badgetplanner/widgets/button.dart';
@@ -20,11 +22,9 @@ class AddCategories extends StatefulWidget {
 
 class _AddCategoriesState extends State<AddCategories> with Helpers{
   late TextEditingController _nameTextEditingController;
-  String? _nameError;
-  Color color = AppColors.BOTTON_SHADOW;
-  int press1 = 0;
-  int press2 = 0;
-
+  CategoryType? _categoryType;
+  bool _addEnabled = false;
+String _nameError='';
   @override
   void initState() {
     // TODO: implement initState
@@ -104,39 +104,22 @@ class _AddCategoriesState extends State<AddCategories> with Helpers{
                           SizedBox(
                             height: SizeConfig.scaleHeight(50),
                           ),
-                          GridView(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.only(
-                                bottom: SizeConfig.scaleHeight(20)),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 7,
-                              crossAxisSpacing: 7,
-                              childAspectRatio: (SizeConfig.scaleWidth(190) /
-                                  SizeConfig.scaleHeight(92)),
-                            ),
+                          Row(
                             children: [
                               IncomeExpensesContanier(
-                                title: AppLocalizations.of(context)!.expenses,
-                                image: 'images/expe.png',
-                                onPressed: () {
-                                  setState(() {
-                                   press1=1;
-                                   press2=0;
-                                  });
-                                }, press: press1,
+                                onTap: () => changeCategoryType(CategoryType.Expense),
+                                title: 'Expenses',
+                                selected: _categoryType == CategoryType.Expense,
+                                icon: Icons.arrow_upward,
+                                iconColor: AppColors.RED,
                               ),
+                              SizedBox(width: SizeConfig.scaleWidth(5)),
                               IncomeExpensesContanier(
-                                title: AppLocalizations.of(context)!.income,
-                                image: 'images/income.png',
-                                onPressed: () {
-                                  setState(() {
-                                    press2=2;
-                                    press1=0;
-                                  });
-                                },
-                                press: press2,
+                                onTap: () => changeCategoryType(CategoryType.Income),
+                                title: 'Income',
+                                selected: _categoryType == CategoryType.Income,
+                                icon: Icons.arrow_downward,
+                                iconColor: AppColors.GREEN,
                               ),
                             ],
                           ),
@@ -159,7 +142,9 @@ class _AddCategoriesState extends State<AddCategories> with Helpers{
                               onPressed: () {
                                 performSave();
                               },
-                              color: color),
+                            color: _addEnabled
+                                ? AppColors.BOTTON
+                                : AppColors.BOTTON_SHADOW,),
                         ]))))));
   }
 
@@ -170,34 +155,50 @@ class _AddCategoriesState extends State<AddCategories> with Helpers{
     }
   }
 
-  bool checkData() {
-    if (_nameTextEditingController.text.isNotEmpty && categorySelect()) {
-      return true;
-    }
-    showSnackBar(context, message:"add name" , error: true);
-    return false;
-  }
+
 
   Future save() async {
     bool created = await CategoryGetxController.to.createCategory(category);
     String message =
     created ?  AppLocalizations.of(context)!.category_created_successfully : AppLocalizations.of(context)!.category_created_field;
     showSnackBar(context, message: message, error: !created);
+    if (created) clear();
   }
+
+  bool checkData() {
+    if (_categoryType != null && _nameTextEditingController.text.isNotEmpty) {
+      return true;
+    }
+    return false;
+  }
+
 
   Category get category {
     Category category = Category();
     category.name = _nameTextEditingController.text;
-    category.expense = press1 == 1;
+    category.expense = _categoryType == CategoryType.Expense;
+    category.id = UsersGetxController.to.user.id;
     return category;
   }
 
-  bool categorySelect() {
-    if (press2 == 0) {
-      if (press1 == 0) {
-        return false;
-      }
-    }
-    return true;
+  void clear() {
+    _nameTextEditingController.text = '';
+    changeCategoryType(null);
+  }
+  void validateForm() {
+    updateEnableStatus(checkData());
+  }
+
+  void updateEnableStatus(bool status) {
+    setState(() {
+      _addEnabled = status;
+    });
+  }
+
+  void changeCategoryType(CategoryType? categoryType) {
+    setState(() {
+      _categoryType = categoryType;
+    });
+    validateForm();
   }
 }

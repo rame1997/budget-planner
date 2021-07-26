@@ -1,7 +1,6 @@
-import 'package:badgetplanner/Database/controllers/user_db_controller.dart';
-import 'package:badgetplanner/getx/actions_getx_controller.dart';
-import 'package:badgetplanner/getx/category_getx_controller.dart';
+import 'package:badgetplanner/getx/currency_getx_controller.dart';
 import 'package:badgetplanner/getx/language_getx_controller.dart';
+import 'package:badgetplanner/getx/users_getx_controller.dart';
 import 'package:badgetplanner/preferences/user_preferences.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
 import 'package:badgetplanner/utilities/helpers.dart';
@@ -20,7 +19,7 @@ class SettingScreen extends StatefulWidget {
   _SettingScreenState createState() => _SettingScreenState();
 }
 
-class _SettingScreenState extends State<SettingScreen> with Helpers{
+class _SettingScreenState extends State<SettingScreen> with Helpers {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -65,20 +64,25 @@ class _SettingScreenState extends State<SettingScreen> with Helpers{
                       SizedBox(
                         height: SizeConfig.scaleHeight(15),
                       ),
-
                       ContainerSetting(
-                          title: AppLocalizations.of(context)!.about_app,
-                          trellingicon: Icons.arrow_back_ios,
-                          leadingicon: Icons.info, onTap: () {
-                            Navigator.pushNamed(context, '/about_screen');
-                      },),
+                        title: AppLocalizations.of(context)!.about_app,
+                        trellingicon: Icons.arrow_back_ios,
+                        leadingicon: Icons.info,
+                        onTap: () {
+                          Navigator.pushNamed(context, '/about_screen');
+                        },
+                      ),
                       SizedBox(
                         height: SizeConfig.scaleHeight(15),
                       ),
                       ContainerSetting(
-                          title: AppLocalizations.of(context)!.language,
-                          trellingicon: Icons.arrow_back_ios,
-                          leadingicon: Icons.language, onTap: () { changeLang(); },),
+                        title: AppLocalizations.of(context)!.language,
+                        trellingicon: Icons.arrow_back_ios,
+                        leadingicon: Icons.language,
+                        onTap: () {
+                          changeLang();
+                        },
+                      ),
                       SizedBox(
                         height: SizeConfig.scaleHeight(15),
                       ),
@@ -89,9 +93,8 @@ class _SettingScreenState extends State<SettingScreen> with Helpers{
                         iconcolor: AppColors.TITLE,
                         titlecolor: AppColors.TITLE,
                         onTap: () async {
-                          await logout(context: context);
-                      },
-
+                          await logout(context);
+                        },
                       ),
                       SizedBox(height: SizeConfig.scaleHeight(25)),
                       TextCustom(
@@ -104,17 +107,17 @@ class _SettingScreenState extends State<SettingScreen> with Helpers{
                       SizedBox(
                         height: SizeConfig.scaleHeight(15),
                       ),
-              InkWell(
-                onTap: () {
-                  clearData(context);
-                },
+                      InkWell(
+                        onTap: () {
+                          clearData(context);
+                        },
                         child: Container(
                           height: SizeConfig.scaleHeight(70),
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(SizeConfig.scaleHeight(12)),
+                            borderRadius: BorderRadius.circular(
+                                SizeConfig.scaleHeight(12)),
                             border: Border.all(color: AppColors.RED, width: 2),
                             boxShadow: [
                               BoxShadow(
@@ -162,10 +165,10 @@ class _SettingScreenState extends State<SettingScreen> with Helpers{
                         color: AppColors.RED,
                         icon: Icons.person_remove,
                         iconcolor: Colors.white,
-                        titlecolor: Colors.white, onTap: () {
-                        deleteAccount (context: context);
-                      },
-                        
+                        titlecolor: Colors.white,
+                        onTap: () {
+                          deleteAccount(context);
+                        },
                       ),
                     ],
                   ),
@@ -174,37 +177,41 @@ class _SettingScreenState extends State<SettingScreen> with Helpers{
 
   void changeLang() {
     String newLanguageCode =
-    SharedPrefController().languageCode == 'en' ? 'ar' : 'en';
+        SharedPrefController().languageCode == 'en' ? 'ar' : 'en';
     print(newLanguageCode);
     LanguageGetxController.to.changeLanguage(newLanguageCode);
   }
-  Future logout({required BuildContext context}) async {
-    bool status = await SharedPrefController().logout();
-    if (status) {
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/login_screen', (route) => false);
-    }
-  }
+
   Future<void> clearData(BuildContext context) async {
+    bool cleared = false;
     bool status = await deleteDialog(
       context: context,
       title: AppLocalizations.of(context)!.alet_clear_account_title,
       content: AppLocalizations.of(context)!.alet_clear_account_message,
     );
     if (status) {
-      await ActionsGetxController.to.deleteAllRows();
-      await CategoryGetxController.to.deleteAllRows();
+      cleared = await UsersGetxController.to.clearAccountData();
+    }
+
+    String message =
+        cleared ? 'User account data cleared' : 'Failed to clear account data';
+    showSnackBar(context, message: message, error: !cleared);
+  }
+
+  Future<void> logout(BuildContext context) async {
+    bool status = await SharedPrefController().logout();
+    if (status) {
+      CurrencyGetxController.to.undoCheckedCurrency();
+      Navigator.pushReplacementNamed(context, '/login_screen');
     }
   }
-  Future<void> deleteAccount({required BuildContext context}) async {
-    bool userDeleted = await UserDbController().delete(SharedPrefController().id);
-    print(userDeleted);
-    if (userDeleted) {
-      await ActionsGetxController.to.deleteAllRows();
-      await CategoryGetxController.to.deleteAllRows();
-      SharedPrefController().logout();
-      showSnackBar(context, message: 'Account Deleted Successfully!');
-      Navigator.pushNamedAndRemoveUntil(context, '/login_screen', (route) => false);
-    }
+
+  Future<void> deleteAccount(BuildContext context) async {
+    bool removed = await UsersGetxController.to.removeUserAccount();
+    String message = removed
+        ? 'User account removed successfully'
+        : 'Failed to remove user account';
+    showSnackBar(context, message: message, error: !removed);
+    if (removed) Navigator.pushReplacementNamed(context, '/login_screen');
   }
-  }
+}

@@ -7,6 +7,8 @@ import 'package:badgetplanner/widgets/text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 
 class CurrencyScreen extends StatefulWidget {
@@ -17,6 +19,8 @@ class CurrencyScreen extends StatefulWidget {
 }
 
 class _CurrencyScreenState extends State<CurrencyScreen> {
+  CurrencyGetxController controller = Get.put(CurrencyGetxController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +32,11 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
               fontweight: FontWeight.w700,
               size: SizeConfig.scaleTextFont(20),
               color: AppColors.TITLE,
-              align: TextAlign.center)),
+              align: TextAlign.center),
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () => popFromCurrency(),
+      ),),
       body: Padding(
         padding: EdgeInsetsDirectional.only(
           top: SizeConfig.scaleHeight(100),
@@ -49,8 +57,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
                   spreadRadius: 0),
             ],
           ),
-          child: GetBuilder<CurrencyGetxController>(
-            init: CurrencyGetxController(),
+          child: GetX<CurrencyGetxController>(
             builder: (CurrencyGetxController controller) {
               return ListView.separated(
                 itemCount: controller.currencies.length,
@@ -58,8 +65,9 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
                   return CurrencyItem(
+                    checked: controller.currencies[index].checked,
                     onTap: () {
-                      popScreen(controller.currencies[index], context);
+                      controller.changeCheckStatus(index);
                     },
                     currency: controller.currencies[index],
                   );
@@ -77,7 +85,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
     );
   }
 
-  popScreen(Currency currency, BuildContext context) {
-    Navigator.pop(context, currency);
+  void popFromCurrency() {
+    Navigator.pop(context, CurrencyGetxController.to.getSelectedCurrency());
   }
 }

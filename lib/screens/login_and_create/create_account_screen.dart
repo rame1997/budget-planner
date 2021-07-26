@@ -1,4 +1,6 @@
 import 'package:badgetplanner/Database/controllers/user_db_controller.dart';
+import 'package:badgetplanner/getx/currency_getx_controller.dart';
+import 'package:badgetplanner/getx/users_getx_controller.dart';
 import 'package:badgetplanner/models/models/currency.dart';
 import 'package:badgetplanner/models/models/user.dart';
 import 'package:badgetplanner/screens/login_and_create/pin_code_screen.dart';
@@ -29,6 +31,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
   late TextEditingController _limitedTextEditingController;
   Currency? currency;
   String pinCode = '';
+  bool _createdEnabled = false;
 
   @override
   void initState() {
@@ -151,8 +154,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
                                 hintColor: AppColors.SUB_TITLE,
                                 hint: 'None',
                                 textEditingController:
-                                    _nameTextEditingController,
-                              ),
+                                    _nameTextEditingController, onChanged: (String value) => validateForm())
+                              ,
                               Divider(
                                 height: SizeConfig.scaleHeight(4),
                                 color: AppColors.SUB_TITLE,
@@ -164,7 +167,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
                                 hintColor: AppColors.SUB_TITLE,
                                 hint: 'None',
                                 textEditingController:
-                                    _emailTextEditingController,
+                                    _emailTextEditingController, onChanged: (String value)  => validateForm() ,
                               ),
                               Divider(
                                 height: SizeConfig.scaleHeight(4),
@@ -182,18 +185,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
                                   hint: currency == null
                                       ? 'US dollars'
                                       : currency!.nameEn,
-                                  onpress: () async {
-                                    Currency selectedCurrency =
-                                        await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CurrencyScreen(),
-                                      ),
-                                    );
-                                    setState(() {
-                                      currency = selectedCurrency;
-                                    });
-                                  },
+                                  onpress: () => navigateToCurrencyScreen()
                                 ),
                               ),
                               Divider(
@@ -207,7 +199,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
                                 hintColor: AppColors.SUB_TITLE,
                                 hint: '\$ 5000',
                                 textEditingController:
-                                    _limitedTextEditingController,
+                                    _limitedTextEditingController, onChanged: (String value) => validateForm(),
                               ),
                               Divider(
                                 height: SizeConfig.scaleHeight(4),
@@ -216,17 +208,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
                               Row(
                                 children: [
                                   TextButton(
-                                    onPressed: () async {
-                                      String code = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => PinCodeScreen(),
-                                        ),
-                                      );
-                                      setState(() {
-                                        pinCode = code;
-                                      });
-                                    },
+                                    onPressed: ()=>navigateToPinCodeScreen(),
                                     child: TextCustom(
                                         title: AppLocalizations.of(context)!
                                             .prifix_Set_your_pin,
@@ -249,9 +231,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
                         text:AppLocalizations.of(context)!
                             .create_account,
                         onPressed: () async{
-                         await performCreatedAccount();
+                         await performCreateAccount();
                         },
-                        color: checkData == false
+                        color: _createdEnabled
                             ? AppColors.BOTTON
                             : AppColors.BOTTON_SHADOW,
                       )
@@ -262,38 +244,19 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
             )));
   }
 
-  Future<void> performCreatedAccount() async {
-    if (checkData()) {
-      await createdAccount();
-    }
-  }
 
-  createdAccount() async {
-    User newUser = user;
-    int newUserId = await UserDbController().create(newUser);
-    if (newUserId != 0) {
-      newUser.id = newUserId;
-      showSnackBar(context,
-          message: AppLocalizations.of(context)!.account_created_successfully);
-      Navigator.pushNamed(context, '/create_account_success_screen');
-    }
-    else{
-      print('rami');
 
-    }
-  }
 
   bool checkData() {
     if (_nameTextEditingController.text.isNotEmpty &&
         _emailTextEditingController.text.isNotEmpty &&
         _limitedTextEditingController.text.isNotEmpty &&
-        pinCode != null &&
+        pinCode.isNotEmpty  &&
         currency != null) {
       return true;
     }
 
-    showSnackBar(context,
-        message: AppLocalizations.of(context)!.empty_field_error, error: true);
+
     return false;
   }
 
@@ -306,6 +269,62 @@ class _CreateAccountScreenState extends State<CreateAccountScreen>
     user.pin = int.parse(pinCode);
     return user;
 
+  }
+  void navigateToCurrencyScreen() async {
+    Currency selectedCurrency =
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CurrencyScreen(),
+      ),
+    );
+    if (selectedCurrency != null) {
+      setState(() {
+        currency = selectedCurrency;
+      });
+      validateForm();
+    }
+  }
+  void navigateToPinCodeScreen() async {
+    String code = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PinCodeScreen(),
+      ),
+    );
+    if (code != null) {
+      setState(() {
+        pinCode = code;
+      });
+      validateForm();
+    }
+  }
+  void validateForm() {
+    updateEnableStatus(checkData());
+  }
+
+  void updateEnableStatus(bool status) {
+    setState(() {
+      _createdEnabled = status;
+    });
+  }
+
+
+  Future<void> performCreateAccount() async {
+    if (_createdEnabled) {
+      await createAccount();
+    } else {
+      showSnackBar(context,
+          message: AppLocalizations.of(context)!.invalid_email_or_pin, error: true);    }
+  }
+  Future<void> createAccount() async {
+    bool status = await UsersGetxController.to.createAccount(user: user);
+    if(status){
+      CurrencyGetxController.to.undoCheckedCurrency();
+      Navigator.pushReplacementNamed(context, '/create_account_success_screen');
+    }else{
+      //SHOW MESSAGE - ERROR
+    }
   }
 }
 

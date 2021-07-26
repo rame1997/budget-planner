@@ -50,7 +50,7 @@ mixin Queries {
         'expense BOOLEAN,'
         'notes TEXT NULL,'
         'user_id INTEGER,'
-        'category_id INTEGER'
+        'category_id INTEGER,'
         'currency_id INTEGER'
         ')'
     );

@@ -5,6 +5,7 @@ class Category extends DbTable{
   late int id;
   late String name;
   late bool expense;
+  bool checked = false;
 
   Category();
 

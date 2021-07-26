@@ -1,3 +1,4 @@
+import 'package:badgetplanner/preferences/user_preferences.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:badgetplanner/widgets/text.dart';
@@ -16,7 +17,8 @@ class _LaunchScreenState extends State<LaunchScreen> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, '/on_boarding_screen');
+      String route = SharedPrefController().loggedIn ? '/bottom_bavigation_bar_screen' : '/on_boarding_screen';
+      Navigator.pushReplacementNamed(context, route);
     });
   }
 

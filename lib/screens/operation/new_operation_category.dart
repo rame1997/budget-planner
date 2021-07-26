@@ -2,7 +2,6 @@ import 'package:badgetplanner/getx/category_getx_controller.dart';
 import 'package:badgetplanner/models/models/category.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
-import 'package:badgetplanner/widgets/checklist.dart';
 import 'package:badgetplanner/widgets/list_income.dart';
 import 'package:badgetplanner/widgets/text.dart';
 import 'package:flutter/cupertino.dart';

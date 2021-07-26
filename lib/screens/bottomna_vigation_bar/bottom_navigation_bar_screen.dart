@@ -7,7 +7,7 @@ import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../add_operation.dart';
+import '../operation/add_operation.dart';
 
 class BottomNavigationBarScreen extends StatefulWidget {
   const BottomNavigationBarScreen({Key? key}) : super(key: key);

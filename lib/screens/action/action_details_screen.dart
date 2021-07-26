@@ -78,7 +78,7 @@ class _ActionDetailsScreenState extends State<ActionDetailsScreen> {
                         child: Column(children: [
                           Container(
                             height: SizeConfig.scaleHeight(100),
-                            width: double.infinity,
+                            width: SizeConfig.scaleWidth(105),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
                               color: Colors.white,
@@ -113,7 +113,7 @@ class _ActionDetailsScreenState extends State<ActionDetailsScreen> {
                             height: SizeConfig.scaleHeight(9),
                           ),
                           TextCustom(
-                              title: widget.actionClass.amount.toString(),
+                              title: widget.actionClass.currencyId==1?'\# '+widget.actionClass.amount.toString():widget.actionClass.currencyId==2?'\$ '+widget.actionClass.amount.toString():'\@ '+widget.actionClass.amount.toString(),
                               fontfamily: 'mon',
                               fontweight: FontWeight.w800,
                               size: SizeConfig.scaleTextFont(21),
@@ -122,35 +122,26 @@ class _ActionDetailsScreenState extends State<ActionDetailsScreen> {
                           SizedBox(
                             height: SizeConfig.scaleHeight(11),
                           ),
-                          GridView(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.only(
-                                bottom: SizeConfig.scaleHeight(20)),
-                            gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 7,
-                              crossAxisSpacing: 7,
-                              childAspectRatio: (SizeConfig.scaleWidth(190) /
-                                  SizeConfig.scaleHeight(92)),
-                            ),
+                          Row(
                             children: [
                               IncomeExpensesContanier(
-                                title: AppLocalizations.of(context)!.expenses,
-                                image: 'images/expe.png',
-                                onPressed: () {
-                                  },
-                                press: widget.actionClass.expense ? 1 : 0,
+                                onTap: () {},
+                                title: 'Expenses',
+                                selected: widget.actionClass.expense ? true : false,
+                                icon: Icons.arrow_upward,
+                                iconColor: AppColors.RED,
                               ),
+                              SizedBox(width: SizeConfig.scaleWidth(5)),
                               IncomeExpensesContanier(
-                                title: AppLocalizations.of(context)!.income,
-                                image: 'images/income.png',
-                                onPressed: () {
-                                },
-                                press: widget.actionClass.expense ? 2 : 0,
+                                onTap: () {},
+                                title: 'Income',
+                                selected: widget.actionClass.expense ? false : true,
+                                icon: Icons.arrow_downward,
+                                iconColor: AppColors.GREEN,
                               ),
                             ],
                           ),
+
                           SizedBox(
                             height: SizeConfig.scaleHeight(11),
                           ),
@@ -201,7 +192,7 @@ class _ActionDetailsScreenState extends State<ActionDetailsScreen> {
                                       prifix: AppLocalizations.of(context)!
                                           .date,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: widget.actionClass.date,
+                                      hint: widget.actionClass.date.toString(),
                                       onpress: () {
                                         Navigator.pushNamed(context, '/currency_screen');
                                       },

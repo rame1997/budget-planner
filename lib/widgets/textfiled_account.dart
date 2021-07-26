@@ -8,9 +8,10 @@ String hint;
 Color hintColor;
 Color prifixColor;
 String prifix;
+final void Function(String value)? onChanged;
 TextEditingController textEditingController;
 TextfileCreateAccount(
-    {required this.hint, required this.hintColor, required this.prifixColor, required this.prifix,required this.textEditingController});
+    {required this.hint, required this.hintColor, required this.prifixColor, required this.prifix,required this.textEditingController,required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +26,7 @@ TextfileCreateAccount(
             align: TextAlign.center),
         Expanded(
           child: TextField(
+            onChanged: onChanged,
             controller: textEditingController,
             textAlign: TextAlign.right,
             decoration: InputDecoration(

@@ -15,7 +15,6 @@ class LanguageGetxController extends GetxController{
 
   void changeLanguage(String newLanguageCode) {
     languageCode.value = newLanguageCode;
-    print('NEW VALUE: ${languageCode.value}');
     SharedPrefController().setLanguage(newLanguageCode);
   }
 }

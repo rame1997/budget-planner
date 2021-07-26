@@ -4,58 +4,59 @@ import 'package:badgetplanner/widgets/text.dart';
 import 'package:flutter/material.dart';
 
 class IncomeExpensesContanier extends StatelessWidget {
- String title;
- String image;
- Function()? onPressed;
-int press=0;
+  final String title;
+  final IconData icon;
+  final Color iconColor;
+  final bool selected;
+  final void Function() onTap;
 
- IncomeExpensesContanier({required this.title, required this.image,required this.onPressed,required this.press});
+  IncomeExpensesContanier({
+    required this.onTap,
+    required this.title,
+    required this.icon,
+    required this.iconColor,
+    this.selected = false,
+  });
 
- @override
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: (){
-        if(onPressed != null){
-          onPressed!();
-        }
-      },
-      child: Container(
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: SizeConfig.scaleHeight(92),
           decoration: BoxDecoration(
-            border: Border.all(color: press == 0?Colors.white:press == 1?Colors.red:Colors.green),
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(8),
             color: Colors.white,
+            border: selected ? Border.all(color: iconColor, width: 2) : null,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.25),
-                spreadRadius: 0,
-                blurRadius: 4,
-                offset: Offset(0, 4),
+                  offset: Offset(0, 3),
+                  color: Colors.black.withOpacity(0.16),
+                  blurRadius: 6,
+                  spreadRadius: 0
               ),
             ],
           ),
-          child:
-          Padding(
-            padding: EdgeInsets.only(
-                right: SizeConfig.scaleWidth(25),
-                left: SizeConfig.scaleWidth(25),
-                top: SizeConfig.scaleHeight(20),
-                bottom: SizeConfig.scaleHeight(5)
-            ),
-            child: Column(
-              children: [
-                Image.asset(image),
-                SizedBox(height: SizeConfig.scaleHeight(10),),
-                TextCustom(
-                    title: title,
-                    fontfamily: 'mon',
-                    fontweight: FontWeight.w500,
-                    size: SizeConfig.scaleTextFont(15),
-                    color: AppColors.TITLE,
-                    align: TextAlign.center),
-              ],
-            ),
-          )
-
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: iconColor,
+              ),
+              SizedBox(height: SizeConfig.scaleHeight(8)),
+              Text(
+                title,
+                style: TextStyle(
+                  color: AppColors.PRFIX_TEXTFILED,
+                  fontSize: SizeConfig.scaleTextFont(15),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

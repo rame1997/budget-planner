@@ -1,9 +1,13 @@
 import 'package:badgetplanner/getx/actions_getx_controller.dart';
+import 'package:badgetplanner/getx/category_getx_controller.dart';
+import 'package:badgetplanner/getx/currency_getx_controller.dart';
+import 'package:badgetplanner/getx/users_getx_controller.dart';
 import 'package:badgetplanner/models/models/actions.dart';
 import 'package:badgetplanner/models/models/category.dart';
 import 'package:badgetplanner/models/models/currency.dart';
 import 'package:badgetplanner/preferences/user_preferences.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
+import 'package:badgetplanner/utilities/enums.dart';
 import 'package:badgetplanner/utilities/helpers.dart';
 import 'package:badgetplanner/utilities/size_config.dart';
 import 'package:badgetplanner/widgets/button.dart';
@@ -12,12 +16,11 @@ import 'package:badgetplanner/widgets/income_expenses_contanier.dart';
 import 'package:badgetplanner/widgets/text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
-import 'currency_screen.dart';
+import '../currency_screen.dart';
 import 'new_operation_category.dart';
 
 class AddOperation extends StatefulWidget {
@@ -27,31 +30,35 @@ class AddOperation extends StatefulWidget {
 }
 
 class _AddOperationState extends State<AddOperation> with Helpers {
-  late TextEditingController _notetextEditingController;
-  late TextEditingController _moneytextEditingController;
-  String pinCode = '';
-  int press1 = 0;
-  int press2 = 0;
-  String hint = 'Thu 2 Sep';
-  String? date ;
-  Currency? currency;
-  Category? category;
+  CategoryType? _categoryType;
+  bool _addEnabled = false;
+  Currency? _currency;
+  Category? _category;
+String hint='10/7/2020';
+  DateTime? _pickedDateValue;
+  String? _pickedDate;
+
+  late TextEditingController _actionAmountTextController;
+  late TextEditingController _noteTextController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _notetextEditingController = TextEditingController();
-    _moneytextEditingController = TextEditingController();
+    _actionAmountTextController = TextEditingController();
+    _noteTextController = TextEditingController();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    _notetextEditingController.dispose();
-    _moneytextEditingController.dispose();
+    _actionAmountTextController.dispose();
+    _noteTextController.dispose();
+    CategoryGetxController.to.undoCheckedCategory();
+    CurrencyGetxController.to.undoCheckedCurrency();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -124,62 +131,49 @@ class _AddOperationState extends State<AddOperation> with Helpers {
                               height: SizeConfig.scaleHeight(23),
                               width: SizeConfig.scaleHeight(67),
                               child: TextField(
-                                controller: _moneytextEditingController,
+                                controller: _actionAmountTextController,
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                maxLength: 8,
+                                onChanged: (String value) => validateForm(),
+                                style: TextStyle(
+                                  color: AppColors.SUB_TITLE,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: SizeConfig.scaleTextFont(21),
+                                ),
                                 decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '\$ 0,00',
-                                    hintStyle: TextStyle(
-                                      color: AppColors.TITLE,
-                                      fontSize: SizeConfig.scaleTextFont(21),
-                                      fontWeight: FontWeight.w800
-                                    )),
+                                  counterText: '',
+                                  hintText: '\$ 0,00',
+                                  hintStyle: TextStyle(
+                                    color: AppColors.PRFIX_TEXTFILED,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: SizeConfig.scaleTextFont(21),
+                                  ),
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                ),
                               ),
                             ),
                           ),
                           SizedBox(
                             height: SizeConfig.scaleHeight(11),
                           ),
-                          GridView(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.only(
-                                bottom: SizeConfig.scaleHeight(20)),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 7,
-                              crossAxisSpacing: 7,
-                              childAspectRatio: (SizeConfig.scaleWidth(190) /
-                                  SizeConfig.scaleHeight(92)),
-                            ),
+                          Row(
                             children: [
                               IncomeExpensesContanier(
-                                title: AppLocalizations.of(context)!.expenses,
-                                image: 'images/expe.png',
-                                onPressed: () {
-                                  setState(() {
-                                    press1=1;
-                                    press2=0;
-                                  });
-                                }, press: category != null
-                                  ? category!.expense
-                                  ? 1
-                                  : 0
-                                  : 0,
+                                onTap: () {},
+                                title: 'Expenses',
+                                selected: _categoryType == CategoryType.Expense,
+                                icon: Icons.arrow_upward,
+                                iconColor: AppColors.RED,
                               ),
+                              SizedBox(width: SizeConfig.scaleWidth(5)),
                               IncomeExpensesContanier(
-                                title: AppLocalizations.of(context)!.income,
-                                image: 'images/income.png',
-                                onPressed: () {
-                                  setState(() {
-                                    press2=2;
-                                    press1=0;
-                                  });
-                                },
-                                press: category != null
-                                    ? !category!.expense
-                                    ? 2
-                                    : 0
-                                    : 0,
+                                onTap: () {},
+                                title: 'Income',
+                                selected: _categoryType == CategoryType.Income,
+                                icon: Icons.arrow_downward,
+                                iconColor: AppColors.GREEN,
                               ),
                             ],
                           ),
@@ -218,7 +212,7 @@ class _AddOperationState extends State<AddOperation> with Helpers {
                                       prifix: AppLocalizations.of(context)!
                                           .categorie,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: category != null ? category!.name : 'Food',
+                                      hint: _category != null ? _category!.name : 'Food',
                                       onpress: () async {
                                         Category selectedCategory =
                                             await Navigator.push(
@@ -229,8 +223,11 @@ class _AddOperationState extends State<AddOperation> with Helpers {
                                           ),
                                         );
                                         setState(() {
-                                          category = selectedCategory;
+                                          _category = selectedCategory;
+                                          changeCategoryType(
+                                              _category!.expense ? CategoryType.Expense : CategoryType.Income);
                                         });
+                                        validateForm();
                                       },
                                     ),
                                   ),
@@ -247,10 +244,9 @@ class _AddOperationState extends State<AddOperation> with Helpers {
                                       prifix:
                                           AppLocalizations.of(context)!.date,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint:date ?? hint,
+                                      hint:_pickedDate ?? hint,
                                       onpress: () async {
                                         await datePicker();
-                                        setState(() {});
                                       },
                                     ),
                                   ),
@@ -265,18 +261,9 @@ class _AddOperationState extends State<AddOperation> with Helpers {
                                       prifix: AppLocalizations.of(context)!
                                           .prifix_Currency,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: currency == null ? 'US dollars' : currency!.nameEn,
-                                      onpress: () async {
-                                        Currency selectedCurrency = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => CurrencyScreen(),
-                                          ),
-                                        );
-                                        setState(() {
-                                          currency = selectedCurrency;
-                                        });
-                                      },
+                                      hint: _currency == null ? 'US dollars' : _currency!.nameEn,
+                                      onpress: () => navigateToCurrencyScreen()
+                                      ,
                                     ),
                                   ),
                                 ],
@@ -304,7 +291,7 @@ class _AddOperationState extends State<AddOperation> with Helpers {
                               ],
                             ),
                             child: TextField(
-                              controller: _notetextEditingController,
+                              controller: _noteTextController,
                               maxLines: 3,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
@@ -317,11 +304,14 @@ class _AddOperationState extends State<AddOperation> with Helpers {
                             height: SizeConfig.scaleHeight(25),
                           ),
                           button(
-                              text: 'Add',
+                              text: AppLocalizations.of(context)!
+                                  .add,
                               onPressed: () async{
                                 await performAdd();
                               },
-                              color: AppColors.BOTTON_SHADOW),
+                            color:_addEnabled
+                                ? AppColors.BOTTON
+                                : AppColors.BOTTON_SHADOW,),
                         ]))))));
   }
   Future performAdd() async {
@@ -330,56 +320,106 @@ class _AddOperationState extends State<AddOperation> with Helpers {
     }
   }
 
-  bool checkData() {
-    if (date != null &&
-        _moneytextEditingController.text.isNotEmpty &&
-        currency != null &&
-        category != null) {
-      return true;
-    }
-    showSnackBar(context,
-        message: AppLocalizations.of(context)!.empty_field_error, error: true);
-    return false;
-  }
-
-  Future save() async {
-    bool created = await ActionsGetxController.to.createOperation(action);
-    if (created) {
-      showSnackBar(context,
-          message: AppLocalizations.of(context)!.success_add_operation);
-      Navigator.pushReplacementNamed(
-          context, '/new_operation_success');
-    } else {
-      showSnackBar(context,
-          message: AppLocalizations.of(context)!.operation_created_field,
-          error: true);
+  Future<void> save() async {
+    if (_addEnabled) {
+      print(_pickedDate);
+      bool created = await ActionGetxController.to.create(action: action);
+      print(created);
+      if (created) {
+        showSnackBar(context,
+            message: AppLocalizations.of(context)!.success_add_operation);
+        Navigator.pushReplacementNamed(
+            context, '/new_operation_success');
+      } else {
+        showSnackBar(context,
+            message: AppLocalizations.of(context)!.operation_created_field,
+            error: true);
+      }
+      if (created) clear();
     }
   }
 
   ActionClass get action {
-    ActionClass actionClass = ActionClass();
-    actionClass.amount = int.parse(_moneytextEditingController.text) as String;
-    actionClass.categoryId = category!.id;
-    actionClass.currencyId = currency!.id;
-    actionClass.expense = category!.expense;
-    actionClass.notes = _notetextEditingController.text;
-    actionClass.date = date!;
-    actionClass.userId = SharedPrefController().id;
-    return actionClass;
+    ActionClass action = ActionClass();
+    action.amount = double.parse(_actionAmountTextController.text);
+    action.expense = _category!.expense;
+    action.date = _pickedDateValue!;
+    action.userId = UsersGetxController.to.user.id;
+    action.currencyId = _currency!.id;
+    action.categoryId = _category!.id;
+    action.notes = _noteTextController.text;
+    return action;
   }
 
+  void clear() {
+    CategoryGetxController.to.undoCheckedCategory();
+    CurrencyGetxController.to.undoCheckedCurrency();
+    _actionAmountTextController.text = '';
+    _noteTextController.text = '';
+    setState(() {
+      _pickedDateValue = null;
+      _pickedDate = null;
+      _categoryType = null;
+      _category = null;
+      _currency = null;
+    });
+  }
   Future datePicker() async {
     DateTime? dateTime = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2015, 3, 14),
+      initialDate: _pickedDateValue ?? DateTime.now(),
+      firstDate: DateTime(2021, 1, 1),
       lastDate: DateTime.now().add(Duration(days: 365)),
     );
     if (dateTime != null) {
+      _pickedDateValue = dateTime;
       var format = DateFormat.yMd('en');
-      date = format.format(dateTime);
-      print('Date: $date');
+      setState(() {
+        _pickedDate = format.format(dateTime);
+      });
+      validateForm();
     }
+  }
+
+  void validateForm() {
+    updateEnableStatus(checkData());
+  }
+
+  void updateEnableStatus(bool status) {
+    setState(() {
+      _addEnabled = status;
+    });
+  }
+
+  bool checkData() {
+    if (_actionAmountTextController.text.isNotEmpty &&
+        _category != null &&
+        _pickedDate != null &&
+        _currency != null) {
+      return true;
+    }
+    return false;
+  }
+  void navigateToCurrencyScreen() async {
+    Currency selectedCurrency =
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CurrencyScreen(),
+      ),
+    );
+    if (selectedCurrency != null) {
+      setState(() {
+        _currency = selectedCurrency;
+      });
+      validateForm();
+    }
+  }
+  void changeCategoryType(CategoryType? categoryType) {
+    setState(() {
+      _categoryType = categoryType;
+    });
+    validateForm();
   }
 
 }

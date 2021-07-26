@@ -17,7 +17,6 @@ class SharedPrefController{
 
 
   Future<void> save(User user) async {
-    print("PREF: ${user.id}");
     await _sharedPreferences.setBool('logged_in', true);
     await _sharedPreferences.setInt('id', user.id);
     await _sharedPreferences.setString('name', user.name);
@@ -41,7 +40,7 @@ class SharedPrefController{
 
   int get id => _sharedPreferences.getInt('id') ?? 0;
 
-  bool get isLoggedIn => _sharedPreferences.getBool('logged_in') ?? false;
+  bool get loggedIn => _sharedPreferences.getBool('logged_in') ?? false;
 
   Future<bool> logout() async {
     return await _sharedPreferences.clear();

@@ -13,35 +13,35 @@ class ActionDbController extends DbOperations<ActionClass>{
 
   @override
   Future<int> create(ActionClass data) async{
-    return await database.insert('action', data.toMap());
+    return await database.insert(ActionClass.TABLE_NAME, data.toMap());
   }
 
   @override
   Future<bool> delete(int id) async{
-    int countOfDeletedRows = await database.delete('action', where: 'id = ?', whereArgs: [id]);
+    int countOfDeletedRows = await database.delete(ActionClass.TABLE_NAME, where: 'id = ?', whereArgs: [id]);
     return countOfDeletedRows != 0;
   }
 
   @override
   Future<List<ActionClass>> read() async{
-    var rowsMaps = await database.query('action');
+    var rowsMaps = await database.query(ActionClass.TABLE_NAME);
     return rowsMaps.map((rowMap) => ActionClass.fromMap(rowMap)).toList();
   }
 
   @override
   Future<ActionClass?> show(int id) async{
-    var data = await database.query('action', where: 'id = ?', whereArgs: [id]);
+    var data = await database.query(ActionClass.TABLE_NAME, where: 'id = ?', whereArgs: [id]);
     return data.isNotEmpty ? data.map((rowMap) => ActionClass.fromMap(rowMap)).first : null;
   }
 
   @override
   Future<bool> update(ActionClass data) async{
-    int countOfUpdatedRows = await database.update('action', data.toMap(), where: 'id = ?', whereArgs: [data.id]);
+    int countOfUpdatedRows = await database.update(ActionClass.TABLE_NAME, data.toMap(), where: 'id = ?', whereArgs: [data.id]);
     return countOfUpdatedRows != 0;
   }
 
   Future<void> deleteAllRows() async{
-    await database.delete('action');
+    await database.delete(ActionClass.TABLE_NAME);
   }
 
 }

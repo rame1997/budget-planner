@@ -1,10 +1,8 @@
-import 'dart:math';
-
-import 'package:badgetplanner/Database/controllers/user_db_controller.dart';
+import 'package:badgetplanner/getx/actions_getx_controller.dart';
 import 'package:badgetplanner/getx/currency_getx_controller.dart';
+import 'package:badgetplanner/getx/users_getx_controller.dart';
 import 'package:badgetplanner/models/models/currency.dart';
 import 'package:badgetplanner/models/models/user.dart';
-import 'package:badgetplanner/preferences/user_preferences.dart';
 import 'package:badgetplanner/screens/login_and_create/pin_code_screen.dart';
 import 'package:badgetplanner/utilities/app_colors.dart';
 import 'package:badgetplanner/utilities/helpers.dart';
@@ -16,6 +14,7 @@ import 'package:badgetplanner/widgets/textfiled_account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 import '../../currency_screen.dart';
 
@@ -27,19 +26,32 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> with Helpers {
+  UsersGetxController user_getx_controller = Get.put(UsersGetxController());
   late TextEditingController _emailTextEditingController;
   late TextEditingController _nameTextEditingController;
   late TextEditingController _limitedTextEditingController;
   Currency? currency;
   String pinCode = '';
+  bool _createdEnabled = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _nameTextEditingController = TextEditingController();
-    _emailTextEditingController = TextEditingController();
-    _limitedTextEditingController = TextEditingController();
+    // getUser().whenComplete((){
+    //   setState(() {
+    //
+    //   });
+    // });
+    User user = user_getx_controller.user;
+    _nameTextEditingController = TextEditingController(text: user.name);
+    _emailTextEditingController = TextEditingController(text: user.email);
+    _limitedTextEditingController =
+        TextEditingController(text: user.dayLimit.toString());
+    currency= CurrencyGetxController.to
+        .getCurrencyById(id: user.currencyId, setSelected: true);
+    pinCode = user.pin.toString();
+
   }
 
   @override
@@ -48,6 +60,7 @@ class _ProfileState extends State<Profile> with Helpers {
     _nameTextEditingController.dispose();
     _emailTextEditingController.dispose();
     _limitedTextEditingController.dispose();
+    CurrencyGetxController.to.undoCheckedCurrency();
     super.dispose();
   }
   @override
@@ -102,7 +115,7 @@ class _ProfileState extends State<Profile> with Helpers {
                         height: SizeConfig.scaleHeight(13),
                       ),
                       TextCustom(
-                          title: user.name,
+                          title: user_getx_controller.user.name,
                           fontfamily: 'mon',
                           fontweight: FontWeight.w700,
                           size: SizeConfig.scaleTextFont(20),
@@ -147,9 +160,9 @@ class _ProfileState extends State<Profile> with Helpers {
                                       prifix:
                                       AppLocalizations.of(context)!.prifix_name,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: user.name,
+                                      hint: user_getx_controller.user.name,
                                       textEditingController:
-                                      _nameTextEditingController,
+                                      _nameTextEditingController, onChanged:(String value) => validateForm(),
                                     ),
                                     Divider(
                                       height: SizeConfig.scaleHeight(4),
@@ -160,9 +173,9 @@ class _ProfileState extends State<Profile> with Helpers {
                                       prifix:
                                       AppLocalizations.of(context)!.prifix_email,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: user.email,
+                                      hint: user_getx_controller.user.email,
                                       textEditingController:
-                                      _emailTextEditingController,
+                                      _emailTextEditingController, onChanged: (String value) => validateForm(),
                                     ),
                                     Divider(
                                       height: SizeConfig.scaleHeight(4),
@@ -179,7 +192,7 @@ class _ProfileState extends State<Profile> with Helpers {
                                         hintColor: AppColors.SUB_TITLE,
                                         hint: currency == null
                                             ? CurrencyGetxController.to
-                                            .getCurrencyName(user.currencyId)
+                                            .getCurrencyName(getUser.currencyId)
                                             : currency!.nameEn,
                                         onpress: () async {
                                           Currency selectedCurrency =
@@ -192,6 +205,7 @@ class _ProfileState extends State<Profile> with Helpers {
                                           setState(() {
                                             currency = selectedCurrency;
                                           });
+                                          validateForm();
                                         },
                                       ),
                                     ),
@@ -204,9 +218,9 @@ class _ProfileState extends State<Profile> with Helpers {
                                       prifix: AppLocalizations.of(context)!
                                           .prifix_Daily_limit,
                                       hintColor: AppColors.SUB_TITLE,
-                                      hint: user.dayLimit.toString(),
+                                      hint: user_getx_controller.user.dayLimit.toString(),
                                       textEditingController:
-                                      _limitedTextEditingController,
+                                      _limitedTextEditingController, onChanged: (String value) => validateForm(),
                                     ),
                                     Divider(
                                       height: SizeConfig.scaleHeight(4),
@@ -215,17 +229,7 @@ class _ProfileState extends State<Profile> with Helpers {
                                     Row(
                                       children: [
                                         TextButton(
-                                          onPressed: () async {
-                                            String code = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => PinCodeScreen(),
-                                              ),
-                                            );
-                                            setState(() {
-                                              pinCode = code;
-                                            });
-                                          },
+                                          onPressed: ()=> navigateToPinCodeScreen(),
                                           child: TextCustom(
                                               title: AppLocalizations.of(context)!
                                                   .prifix_Set_your_pin,
@@ -257,7 +261,9 @@ class _ProfileState extends State<Profile> with Helpers {
                           performSave();
 
 
-                        }, color:AppColors.BOTTON,
+                        },color: _createdEnabled
+                          ? AppColors.BOTTON
+                          : AppColors.BOTTON_SHADOW,
                       )
                     ],
                   ),
@@ -265,42 +271,64 @@ class _ProfileState extends State<Profile> with Helpers {
               ),
             )));
   }
-  User get user {
-    User user = SharedPrefController().getUser();
+  void navigateToPinCodeScreen() async {
+      String code = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PinCodeScreen(),
+        ),
+      );
+      if (code != null) {
+      setState(() {
+        pinCode = code;
+      });
+      validateForm();
+      }
+    }
+  void validateForm() {
+    updateEnableStatus(checkData());
+  }
+
+  void updateEnableStatus(bool status) {
+    setState(() {
+      _createdEnabled = status;
+    });
+  }
+  bool checkData() {
+    return _emailTextEditingController.text.isNotEmpty &&
+        _limitedTextEditingController.text.isNotEmpty &&
+        currency != null &&
+        _nameTextEditingController.text.isNotEmpty &&
+        pinCode.isNotEmpty;
+  }
+  Future<void> performSave() async {
+    if (_createdEnabled) {
+      await updateProfile();
+    } else {
+      //SHOW ERROR MESSAGE
+    }
+  }
+  Future<void> updateProfile() async {
+    bool status = await UsersGetxController.to.createAccount(user: getUser);
+    if (status) {
+      CurrencyGetxController.to.undoCheckedCurrency();
+      showSnackBar(context, message: AppLocalizations.of(context)!.account_updated_successfully);
+      Navigator.pushReplacementNamed(context, '/success_screen');
+    } else {
+      showSnackBar(context, message:AppLocalizations.of(context)!.account_updated_field);    }
+  }
+
+  User get getUser {
+    User user = UsersGetxController.to.user;
+    user.name = _nameTextEditingController.text;
+    user.email = _emailTextEditingController.text;
+    user.pin = int.parse(pinCode);
+    user.dayLimit = double.parse(_limitedTextEditingController.text);
+    user.currencyId = currency!.id;
     return user;
   }
 
-  Future<void> performSave() async {
-    bool updated = await UserDbController().update(userUpdated);
-    if (updated) {
-      SharedPrefController().save(userUpdated);
-      showSnackBar(context, message: AppLocalizations.of(context)!.account_updated_successfully);
-      clearFields();
-    } else {
-      showSnackBar(context, message:AppLocalizations.of(context)!.account_updated_field);
-    }
-  }
 
-  User get userUpdated {
-    User updatedUser = user;
-    updatedUser.name = _nameTextEditingController.text.isNotEmpty
-        ? _nameTextEditingController.text
-        : user.name;
-    updatedUser.dayLimit = _limitedTextEditingController.text.isNotEmpty
-        ? double.parse(_limitedTextEditingController.text)
-        : user.dayLimit;
-    updatedUser.email =
-    _emailTextEditingController.text.isNotEmpty ? _emailTextEditingController.text : user.email;
-    updatedUser.currencyId = currency == null ? user.currencyId : currency!.id;
-    updatedUser.pin = pinCode == null ? user.pin : int.parse(pinCode);
-    return updatedUser;
-  }
-
-  void clearFields() {
-    _nameTextEditingController.text = '';
-    _limitedTextEditingController.text = '';
-    _emailTextEditingController.text = '';
-  }
 }
 
 
